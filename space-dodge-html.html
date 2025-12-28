@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Dodge Game by Mr BUKKAN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(180deg, #1a0b2e 0%, #16213e 50%, #1a0b2e 100%);
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #container {
+            position: relative;
+            width: 100vw;
+            max-width: 600px;
+            height: 100vh;
+            max-height: 900px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .hide {
+            display: none;
+        }
+        h1 {
+            font-size: 42px;
+            background: linear-gradient(90deg, #22d3ee, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+        .subtitle {
+            font-size: 20px;
+            color: #d1d5db;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 15px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #06b6d4, #9333ea);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .info {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #9ca3af;
+        }
+        .highscore {
+            margin-top: 15px;
+            font-size: 20px;
+            color: #fbbf24;
+        }
+        #scoreDisplay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 15px;
+            border-radius: 5px;
+            z-index: 10;
+        }
+        #highDisplay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 15px;
+            border-radius: 5px;
+            z-index: 10;
+        }
+        #watermark {
+            position: absolute;
+            bottom: 140px;
+            right: 10px;
+            font-size: 11px;
+            color: #9ca3af;
+            z-index: 10;
+        }
+        .gameOverText {
+            font-size: 44px;
+            color: #ef4444;
+            margin-bottom: 20px;
+        }
+        .finalScore {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .newHigh {
+            font-size: 22px;
+            color: #fbbf24;
+            margin-bottom: 25px;
+        }
+        #controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            z-index: 10;
+        }
+        .btn {
+            width: 48%;
+            height: 100px;
+            background: rgba(34, 211, 238, 0.3);
+            border: 3px solid rgba(34, 211, 238, 0.6);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .btn:active {
+            background: rgba(34, 211, 238, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        
+        <div id="menu" class="screen">
+            <h1>Space Dodge Game<br>by Mr BUKKAN</h1>
+            <p class="subtitle">Dodge asteroids, collect stars!</p>
+            <button onclick="startGame()">START GAME</button>
+            <p class="info">Use Left/Right buttons or Arrow keys</p>
+            <p id="menuHigh" class="highscore"></p>
+        </div>
+        
+        <div id="gameOver" class="screen hide">
+            <h2 class="gameOverText">GAME OVER!</h2>
+            <p class="finalScore">Final Score: <span id="final">0</span></p>
+            <p id="newHighText" class="newHigh hide">New High Score!</p>
+            <button onclick="startGame()">PLAY AGAIN</button>
+        </div>
+        
+        <div id="scoreDisplay" class="hide">Score: 0</div>
+        <div id="highDisplay" class="hide">High: 0</div>
+        <div id="watermark" class="hide">Copyright 2024 Mr BUKKAN | bukkan1309@gmail.com</div>
+        
+        <div id="controls" class="hide">
+            <div class="btn" id="leftBtn">LEFT</div>
+            <div class="btn" id="rightBtn">RIGHT</div>
+        </div>
+    </div>
+
+    <script>
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var running = false;
+        var score = 0;
+        var high = 0;
+        var px = 300;
+        var py = 700;
+        var obs = [];
+        var stars = [];
+        var keys = {};
+        var left = false;
+        var right = false;
+        
+        function init() {
+            var c = document.getElementById('container');
+            canvas.width = c.clientWidth;
+            canvas.height = c.clientHeight;
+            px = canvas.width / 2;
+            py = canvas.height - 100;
+        }
+        
+        init();
+        window.addEventListener('resize', init);
+        
+        var lb = document.getElementById('leftBtn');
+        var rb = document.getElementById('rightBtn');
+        
+        lb.addEventListener('mousedown', function() { left = true; });
+        lb.addEventListener('mouseup', function() { left = false; });
+        lb.addEventListener('touchstart', function(e) { e.preventDefault(); left = true; });
+        lb.addEventListener('touchend', function(e) { e.preventDefault(); left = false; });
+        
+        rb.addEventListener('mousedown', function() { right = true; });
+        rb.addEventListener('mouseup', function() { right = false; });
+        rb.addEventListener('touchstart', function(e) { e.preventDefault(); right = true; });
+        rb.addEventListener('touchend', function(e) { e.preventDefault(); right = false; });
+        
+        document.addEventListener('keydown', function(e) { keys[e.key] = true; });
+        document.addEventListener('keyup', function(e) { keys[e.key] = false; });
+        
+        function startGame() {
+            document.getElementById('menu').classList.add('hide');
+            document.getElementById('gameOver').classList.add('hide');
+            document.getElementById('scoreDisplay').classList.remove('hide');
+            document.getElementById('highDisplay').classList.remove('hide');
+            document.getElementById('watermark').classList.remove('hide');
+            document.getElementById('controls').classList.remove('hide');
+            
+            running = true;
+            score = 0;
+            obs = [];
+            stars = [];
+            px = canvas.width / 2;
+            py = canvas.height - 100;
+            
+            updateDisplay();
+            loop();
+        }
+        
+        function updateDisplay() {
+            document.getElementById('scoreDisplay').textContent = 'Score: ' + score;
+            document.getElementById('highDisplay').textContent = 'High: ' + high;
+        }
+        
+        function loop() {
+            if (!running) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = 'white';
+            for (var i = 0; i < 50; i++) {
+                var x = (i * 37) % canvas.width;
+                var y = (i * 53) % canvas.height;
+                ctx.fillRect(x, y, 2, 2);
+            }
+            
+            if (keys['ArrowLeft'] || keys['a'] || left) {
+                px = Math.max(20, px - 6);
+            }
+            if (keys['ArrowRight'] || keys['d'] || right) {
+                px = Math.min(canvas.width - 20, px + 6);
+            }
+            
+            ctx.fillStyle = '#22d3ee';
+            ctx.beginPath();
+            ctx.moveTo(px, py - 15);
+            ctx.lineTo(px - 15, py + 15);
+            ctx.lineTo(px + 15, py + 15);
+            ctx.closePath();
+            ctx.fill();
+            
+            if (Math.random() < 0.02) {
+                obs.push({
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: 0,
+                    s: Math.random() * 20 + 25
+                });
+            }
+            
+            if (Math.random() < 0.015) {
+                stars.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: 0
+                });
+            }
+            
+            for (var i = obs.length - 1; i >= 0; i--) {
+                var o = obs[i];
+                o.y += 3;
+                
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.arc(o.x, o.y, o.s / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                var dx = o.x - px;
+                var dy = o.y - py;
+                var d = Math.sqrt(dx * dx + dy * dy);
+                
+                if (d < o.s / 2 + 15) {
+                    endGame();
+                    return;
+                }
+                
+                if (o.y > canvas.height + 50) {
+                    obs.splice(i, 1);
+                }
+            }
+            
+            for (var i = stars.length - 1; i >= 0; i--) {
+                var st = stars[i];
+                st.y += 2;
+                
+                ctx.fillStyle = '#fbbf24';
+                ctx.font = '28px Arial';
+                ctx.fillText('*', st.x - 7, st.y + 10);
+                
+                var dx = st.x - px;
+                var dy = st.y - py;
+                var d = Math.sqrt(dx * dx + dy * dy);
+                
+                if (d < 25) {
+                    score += 10;
+                    updateDisplay();
+                    stars.splice(i, 1);
+                }
+                
+                if (st.y > canvas.height + 50) {
+                    stars.splice(i, 1);
+                }
+            }
+            
+            score += 1;
+            if (score % 10 === 0) {
+                updateDisplay();
+            }
+            
+            requestAnimationFrame(loop);
+        }
+        
+        function endGame() {
+            running = false;
+            document.getElementById('controls').classList.add('hide');
+            
+            if (score > high) {
+                high = score;
+                document.getElementById('newHighText').classList.remove('hide');
+            } else {
+                document.getElementById('newHighText').classList.add('hide');
+            }
+            
+            document.getElementById('final').textContent = score;
+            document.getElementById('menuHigh').textContent = high > 0 ? 'High Score: ' + high : '';
+            document.getElementById('gameOver').classList.remove('hide');
+        }
+    </script>
+</body>
+</html>
