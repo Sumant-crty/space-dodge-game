@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Geography Quiz by Mr Bukkan</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+        .copyright {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <div class="copyright">© 2026 Mr Bukkan. All Rights Reserved.</div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const IndianGeographyQuiz = () => {
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [score, setScore] = useState(0);
+            const [showResult, setShowResult] = useState(false);
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const [answeredQuestions, setAnsweredQuestions] = useState([]);
+            const [gameStarted, setGameStarted] = useState(false);
+            const [difficulty, setDifficulty] = useState('medium');
+
+            const questions = {
+                easy: [
+                    {
+                        question: "What is the capital of India?",
+                        options: ["Mumbai", "New Delhi", "Kolkata", "Bangalore"],
+                        correct: 1,
+                        explanation: "New Delhi is the capital of India, located in the National Capital Territory."
+                    },
+                    {
+                        question: "Which is the longest river in India?",
+                        options: ["Yamuna", "Brahmaputra", "Ganges", "Godavari"],
+                        correct: 2,
+                        explanation: "The Ganges is the longest river in India, flowing for about 2,525 km."
+                    },
+                    {
+                        question: "Which state is known as 'God's Own Country'?",
+                        options: ["Kerala", "Goa", "Tamil Nadu", "Karnataka"],
+                        correct: 0,
+                        explanation: "Kerala is popularly known as 'God's Own Country' due to its natural beauty."
+                    },
+                    {
+                        question: "What is the highest mountain peak in India?",
+                        options: ["Mount Everest", "Nanda Devi", "Kanchenjunga", "K2"],
+                        correct: 2,
+                        explanation: "Kanchenjunga is the highest mountain peak entirely in India at 8,586 meters."
+                    },
+                    {
+                        question: "Which city is known as the 'Pink City'?",
+                        options: ["Jaipur", "Jodhpur", "Udaipur", "Bikaner"],
+                        correct: 0,
+                        explanation: "Jaipur is called the Pink City because of the color of its buildings."
+                    },
+                    {
+                        question: "Which is the largest state in India by area?",
+                        options: ["Maharashtra", "Madhya Pradesh", "Rajasthan", "Uttar Pradesh"],
+                        correct: 2,
+                        explanation: "Rajasthan is the largest state in India by area, covering 342,239 sq km."
+                    },
+                    {
+                        question: "Which ocean is to the south of India?",
+                        options: ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"],
+                        correct: 1,
+                        explanation: "The Indian Ocean lies to the south of India and is named after the country."
+                    },
+                    {
+                        question: "What is the capital of Maharashtra?",
+                        options: ["Pune", "Nagpur", "Mumbai", "Nashik"],
+                        correct: 2,
+                        explanation: "Mumbai is the capital of Maharashtra and India's financial capital."
+                    }
+                ],
+                medium: [
+                    {
+                        question: "Which river is known as the 'Sorrow of Bengal'?",
+                        options: ["Brahmaputra", "Damodar", "Hooghly", "Mahanadi"],
+                        correct: 1,
+                        explanation: "The Damodar River was known as the 'Sorrow of Bengal' due to frequent flooding before dams were built."
+                    },
+                    {
+                        question: "Where is the Rann of Kutch located?",
+                        options: ["Rajasthan", "Gujarat", "Punjab", "Haryana"],
+                        correct: 1,
+                        explanation: "The Rann of Kutch is a salt marsh located in Gujarat and parts of Pakistan."
+                    },
+                    {
+                        question: "Which Indian state has the longest coastline?",
+                        options: ["Tamil Nadu", "Maharashtra", "Gujarat", "Andhra Pradesh"],
+                        correct: 2,
+                        explanation: "Gujarat has the longest coastline in India at approximately 1,600 km."
+                    },
+                    {
+                        question: "The Tropic of Cancer passes through how many Indian states?",
+                        options: ["6", "8", "10", "12"],
+                        correct: 1,
+                        explanation: "The Tropic of Cancer passes through 8 Indian states."
+                    },
+                    {
+                        question: "Which is the smallest state in India by area?",
+                        options: ["Sikkim", "Tripura", "Goa", "Manipur"],
+                        correct: 2,
+                        explanation: "Goa is the smallest state in India with an area of 3,702 sq km."
+                    },
+                    {
+                        question: "Where are the Andaman and Nicobar Islands located?",
+                        options: ["Arabian Sea", "Bay of Bengal", "Indian Ocean (South)", "Lakshadweep Sea"],
+                        correct: 1,
+                        explanation: "The Andaman and Nicobar Islands are located in the Bay of Bengal."
+                    },
+                    {
+                        question: "Which plateau is known as the 'Roof of the World'?",
+                        options: ["Deccan Plateau", "Tibetan Plateau", "Chota Nagpur Plateau", "Malwa Plateau"],
+                        correct: 1,
+                        explanation: "The Tibetan Plateau, which extends into parts of northern India, is called the Roof of the World."
+                    },
+                    {
+                        question: "Which state is the largest producer of tea in India?",
+                        options: ["Kerala", "Tamil Nadu", "Assam", "West Bengal"],
+                        correct: 2,
+                        explanation: "Assam is the largest producer of tea in India, accounting for about 50% of total production."
+                    },
+                    {
+                        question: "What is the southernmost point of India called?",
+                        options: ["Kanyakumari", "Indira Point", "Point Calimere", "Dhanushkodi"],
+                        correct: 1,
+                        explanation: "Indira Point in the Nicobar Islands is the southernmost point of India."
+                    },
+                    {
+                        question: "Which mountain range separates India from Tibet?",
+                        options: ["Vindhyas", "Himalayas", "Aravalli", "Western Ghats"],
+                        correct: 1,
+                        explanation: "The Himalayan mountain range separates India from Tibet and China."
+                    }
+                ],
+                hard: [
+                    {
+                        question: "Which is the only floating national park in the world, located in India?",
+                        options: ["Kaziranga", "Keibul Lamjao", "Sundarbans", "Periyar"],
+                        correct: 1,
+                        explanation: "Keibul Lamjao National Park in Manipur is the world's only floating national park."
+                    },
+                    {
+                        question: "The Duncan Passage separates which two island groups?",
+                        options: ["Little Andaman and Car Nicobar", "South Andaman and Little Andaman", "Great Nicobar and Little Nicobar", "Ritchie's Archipelago and South Andaman"],
+                        correct: 1,
+                        explanation: "The Duncan Passage separates South Andaman and Little Andaman islands."
+                    },
+                    {
+                        question: "Which Indian city lies on the zero degree longitude?",
+                        options: ["None", "New Delhi", "Allahabad", "Nagpur"],
+                        correct: 0,
+                        explanation: "No Indian city lies on the Prime Meridian (0° longitude). The 82.5°E longitude is India's standard meridian."
+                    },
+                    {
+                        question: "What is the approximate length of India's land border?",
+                        options: ["12,700 km", "15,200 km", "18,300 km", "21,100 km"],
+                        correct: 1,
+                        explanation: "India's land border is approximately 15,200 km long, shared with 7 countries."
+                    },
+                    {
+                        question: "Which lake is formed by a meteorite crater in India?",
+                        options: ["Chilika Lake", "Lonar Lake", "Sambhar Lake", "Wular Lake"],
+                        correct: 1,
+                        explanation: "Lonar Lake in Maharashtra is formed by a meteorite impact and is the only hypervelocity meteorite crater in basaltic rock."
+                    },
+                    {
+                        question: "The Nine Degree Channel separates which island groups?",
+                        options: ["Lakshadweep and Maldives", "Lakshadweep and Minicoy", "Andaman and Nicobar", "Car Nicobar and Great Nicobar"],
+                        correct: 1,
+                        explanation: "The Nine Degree Channel separates the Lakshadweep islands from Minicoy Island."
+                    },
+                    {
+                        question: "Which river has the largest river basin in India?",
+                        options: ["Ganges", "Brahmaputra", "Godavari", "Krishna"],
+                        correct: 0,
+                        explanation: "The Ganges-Brahmaputra-Meghna basin is the largest, but the Ganges alone has the largest basin area in India."
+                    },
+                    {
+                        question: "How many states share a border with Bangladesh?",
+                        options: ["3", "4", "5", "6"],
+                        correct: 2,
+                        explanation: "Five Indian states share a border with Bangladesh: West Bengal, Assam, Meghalaya, Tripura, and Mizoram."
+                    }
+                ]
+            };
+
+            const getCurrentQuestions = () => questions[difficulty];
+
+            const handleAnswerClick = (selectedIndex) => {
+                if (selectedAnswer !== null) return;
+
+                setSelectedAnswer(selectedIndex);
+                const isCorrect = selectedIndex === getCurrentQuestions()[currentQuestion].correct;
+                
+                if (isCorrect) {
+                    setScore(score + 1);
+                }
+
+                setAnsweredQuestions([...answeredQuestions, {
+                    question: getCurrentQuestions()[currentQuestion].question,
+                    userAnswer: selectedIndex,
+                    correctAnswer: getCurrentQuestions()[currentQuestion].correct,
+                    isCorrect
+                }]);
+            };
+
+            const handleNext = () => {
+                if (currentQuestion < getCurrentQuestions().length - 1) {
+                    setCurrentQuestion(currentQuestion + 1);
+                    setSelectedAnswer(null);
+                } else {
+                    setShowResult(true);
+                }
+            };
+
+            const restartQuiz = () => {
+                setCurrentQuestion(0);
+                setScore(0);
+                setShowResult(false);
+                setSelectedAnswer(null);
+                setAnsweredQuestions([]);
+                setGameStarted(false);
+            };
+
+            const startGame = (level) => {
+                setDifficulty(level);
+                setGameStarted(true);
+                setCurrentQuestion(0);
+                setScore(0);
+                setShowResult(false);
+                setSelectedAnswer(null);
+                setAnsweredQuestions([]);
+            };
+
+            if (!gameStarted) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-white to-green-400 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl w-full">
+                            <div className="text-center mb-8">
+                                <h1 className="text-5xl font-bold mb-2 bg-gradient-to-r from-orange-500 to-green-600 bg-clip-text text-transparent">
+                                    🇮🇳 Indian Geography Quiz
+                                </h1>
+                                <p className="text-xl text-gray-700 font-semibold mt-2">by Mr Bukkan</p>
+                                <p className="text-gray-600 text-lg mt-2">Test your knowledge about the diverse geography of India!</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h2 className="text-2xl font-semibold text-center mb-4">Choose Difficulty Level</h2>
+                                
+                                <button
+                                    onClick={() => startGame('easy')}
+                                    className="w-full bg-green-500 hover:bg-green-600 text-white py-4 px-6 rounded-xl text-xl font-semibold transition transform hover:scale-105 shadow-lg"
+                                >
+                                    🌱 Easy
+                                    <p className="text-sm font-normal mt-1">Basic geography questions</p>
+                                </button>
+
+                                <button
+                                    onClick={() => startGame('medium')}
+                                    className="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 px-6 rounded-xl text-xl font-semibold transition transform hover:scale-105 shadow-lg"
+                                >
+                                    🏔️ Medium
+                                    <p className="text-sm font-normal mt-1">Moderate challenge</p>
+                                </button>
+
+                                <button
+                                    onClick={() => startGame('hard')}
+                                    className="w-full bg-red-500 hover:bg-red-600 text-white py-4 px-6 rounded-xl text-xl font-semibold transition transform hover:scale-105 shadow-lg"
+                                >
+                                    🎯 Hard
+                                    <p className="text-sm font-normal mt-1">Expert level questions</p>
+                                </button>
+                            </div>
+
+                            <div className="mt-8 bg-blue-50 rounded-xl p-4">
+                                <h3 className="font-semibold text-blue-900 mb-2">Topics Covered:</h3>
+                                <ul className="text-blue-800 text-sm space-y-1">
+                                    <li>• States, Capitals & Cities</li>
+                                    <li>• Rivers, Mountains & Landforms</li>
+                                    <li>• Islands & Coastal Regions</li>
+                                    <li>• National Parks & Wildlife</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (showResult) {
+                const percentage = (score / getCurrentQuestions().length) * 100;
+                let grade, message, color;
+
+                if (percentage >= 80) {
+                    grade = "Excellent!";
+                    message = "You're a Geography Expert! 🏆";
+                    color = "text-green-600";
+                } else if (percentage >= 60) {
+                    grade = "Good Job!";
+                    message = "You know India well! 👍";
+                    color = "text-blue-600";
+                } else if (percentage >= 40) {
+                    grade = "Not Bad!";
+                    message = "Keep learning! 📚";
+                    color = "text-orange-600";
+                } else {
+                    grade = "Keep Trying!";
+                    message = "Practice makes perfect! 💪";
+                    color = "text-red-600";
+                }
+
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-white to-green-400 flex items-center justify-center p-4 pb-20">
+                        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
+                            <div className="text-center mb-8">
+                                <div className="text-6xl mb-4">🏆</div>
+                                <h2 className={`text-4xl font-bold mb-2 ${color}`}>{grade}</h2>
+                                <p className="text-2xl text-gray-700 mb-4">{message}</p>
+                                <div className="text-6xl font-bold text-gray-800 mb-2">
+                                    {score}/{getCurrentQuestions().length}
+                                </div>
+                                <p className="text-xl text-gray-600">Score: {percentage.toFixed(0)}%</p>
+                            </div>
+
+                            <div className="mb-6 max-h-96 overflow-y-auto">
+                                <h3 className="text-xl font-semibold mb-4 text-gray-800">Review Your Answers:</h3>
+                                {answeredQuestions.map((q, idx) => (
+                                    <div key={idx} className={`mb-4 p-4 rounded-xl ${q.isCorrect ? 'bg-green-50' : 'bg-red-50'}`}>
+                                        <div className="flex items-start gap-2">
+                                            <div className="flex-shrink-0 mt-1">
+                                                {q.isCorrect ? (
+                                                    <span className="text-green-600 text-xl">✓</span>
+                                                ) : (
+                                                    <span className="text-red-600 text-xl">✗</span>
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="font-semibold text-gray-800 mb-2">Q{idx + 1}: {q.question}</p>
+                                                <p className="text-sm text-gray-600">
+                                                    Your answer: {getCurrentQuestions()[idx].options[q.userAnswer]}
+                                                </p>
+                                                {!q.isCorrect && (
+                                                    <p className="text-sm text-green-700 font-semibold">
+                                                        Correct answer: {getCurrentQuestions()[idx].options[q.correctAnswer]}
+                                                    </p>
+                                                )}
+                                                <p className="text-sm text-gray-700 mt-2 italic">
+                                                    {getCurrentQuestions()[idx].explanation}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={restartQuiz}
+                                className="w-full bg-gradient-to-r from-orange-500 to-green-500 hover:from-orange-600 hover:to-green-600 text-white py-4 px-6 rounded-xl text-xl font-semibold transition transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                            >
+                                <span>🔄</span>
+                                Play Again
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const question = getCurrentQuestions()[currentQuestion];
+            const progress = ((currentQuestion + 1) / getCurrentQuestions().length) * 100;
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-orange-400 via-white to-green-400 flex items-center justify-center p-4 pb-20">
+                    <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
+                        <div className="mb-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                                    {difficulty} Level
+                                </div>
+                                <div className="text-sm font-semibold text-gray-600">
+                                    Question {currentQuestion + 1} of {getCurrentQuestions().length}
+                                </div>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                                <div
+                                    className="bg-gradient-to-r from-orange-500 to-green-500 h-3 rounded-full transition-all duration-500"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div className="text-3xl font-bold text-gray-800">Score: {score}</div>
+                            </div>
+                        </div>
+
+                        <div className="mb-8">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">{question.question}</h2>
+
+                            <div className="space-y-3">
+                                {question.options.map((option, index) => {
+                                    let buttonClass = "w-full text-left p-4 rounded-xl text-lg font-semibold transition transform hover:scale-102 shadow-md ";
+                                    
+                                    if (selectedAnswer === null) {
+                                        buttonClass += "bg-gray-100 hover:bg-gray-200 text-gray-800";
+                                    } else if (index === question.correct) {
+                                        buttonClass += "bg-green-500 text-white";
+                                    } else if (index === selectedAnswer) {
+                                        buttonClass += "bg-red-500 text-white";
+                                    } else {
+                                        buttonClass += "bg-gray-100 text-gray-600";
+                                    }
+
+                                    return (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleAnswerClick(index)}
+                                            disabled={selectedAnswer !== null}
+                                            className={buttonClass}
+                                        >
+                                            <span className="flex items-center gap-3">
+                                                <span className="w-8 h-8 rounded-full bg-white bg-opacity-30 flex items-center justify-center font-bold">
+                                                    {String.fromCharCode(65 + index)}
+                                                </span>
+                                                {option}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {selectedAnswer !== null && (
+                                <div className={`mt-6 p-4 rounded-xl ${selectedAnswer === question.correct ? 'bg-green-100' : 'bg-red-100'}`}>
+                                    <p className={`font-semibold mb-2 ${selectedAnswer === question.correct ? 'text-green-800' : 'text-red-800'}`}>
+                                        {selectedAnswer === question.correct ? '✓ Correct!' : '✗ Incorrect'}
+                                    </p>
+                                    <p className="text-gray-700">{question.explanation}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {selectedAnswer !== null && (
+                            <button
+                                onClick={handleNext}
+                                className="w-full bg-gradient-to-r from-orange-500 to-green-500 hover:from-orange-600 hover:to-green-600 text-white py-4 px-6 rounded-xl text-xl font-semibold transition transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                            >
+                                {currentQuestion < getCurrentQuestions().length - 1 ? 'Next Question' : 'Show Results'}
+                                <span>→</span>
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<IndianGeographyQuiz />, document.getElementById('root'));
+    </script>
+</body>
+</html>
